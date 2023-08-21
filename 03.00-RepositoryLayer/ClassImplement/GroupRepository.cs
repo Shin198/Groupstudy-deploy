@@ -1,0 +1,51 @@
+﻿using DataLayer.DBContext;
+using DataLayer.DBObject;
+using Microsoft.EntityFrameworkCore;
+using RepositoryLayer.Interface;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace RepositoryLayer.ClassImplement
+{
+    public class GroupRepository : BaseRepo<Group, int>, IGroupRepository
+    {
+        public GroupRepository(GroupStudyContext dbContext) : base(dbContext)
+        {
+        }
+
+        public override Task CreateAsync(Group entity)
+        {
+            return base.CreateAsync(entity);
+        }
+
+        public override async Task<Group> GetByIdAsync(int id)
+        {
+            return await dbContext.Groups
+                .Include(e=>e.Class)
+                .Include(e=>e.GroupSubjects).ThenInclude(e=>e.Subject)
+                .Include(e=>e.Meetings)
+                .Include(e=>e.GroupMembers).ThenInclude(e=>e.Account)
+                .Include(e=>e.JoinInvites).ThenInclude(e=>e.Account)
+                .Include(e=>e.JoinRequests).ThenInclude(e=>e.Account)
+                .SingleOrDefaultAsync(e=>e.Id == id);
+        }
+
+        public override IQueryable<Group> GetList()
+        {
+            return base.GetList();
+        }
+
+        public override Task RemoveAsync(int id)
+        {
+            return base.RemoveAsync(id);
+        }
+
+        public override Task UpdateAsync(Group entity)
+        {
+            return base.UpdateAsync(entity);
+        }
+    }
+}
